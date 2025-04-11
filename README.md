@@ -117,13 +117,7 @@ The following environment variables must be configured in the `.env` file:
 - `PUBLIC_VAPID_KEY`: VAPID public key for notifications
 - `PRIVATE_VAPID_KEY`: VAPID private key for notifications
 
-### Functionalities:
-
-To use push notifications:
-1. Access the site
-2. Register and log in with an account
-3. Go to the profile page and enable notifications
-4. Accept the browser's permission request for notifications
-
-Administrators can send notifications from the administration page.
+## TODO:
+- [ ] Complete push notifications implementation
+- [ ] Add multilanguage support (only Italian right now)
 
