@@ -164,6 +164,13 @@ router.get('/order-state', async (req, res) => {
   try {
     console.log('Richiesta stato ordini ricevuta');
     
+    // Imposta header per prevenire il caching
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     const config = await Config.findOne({
       where: { function: 'order_state' }
     });
@@ -179,13 +186,38 @@ router.get('/order-state', async (req, res) => {
     
     res.json({
       success: true,
-      data: response
+      data: response,
+      timestamp: Date.now() // Aggiungiamo un timestamp per forzare il client a ricaricare
     });
   } catch (error) {
     console.error('Errore nel recupero dello stato degli ordini:', error);
     res.status(500).json({
       success: false,
       message: 'Si è verificato un errore durante il recupero dello stato degli ordini.',
+      error: error.message
+    });
+  }
+});
+
+// Public route to get system default language
+router.get('/system-language', async (req, res) => {
+  try {
+    const config = await Config.findOne({
+      where: { function: 'default_language' }
+    });
+    
+    // If config not found, default to English
+    const language = config && config.value ? config.value : 'en';
+    
+    res.json({
+      success: true,
+      data: { language }
+    });
+  } catch (error) {
+    console.error('Error retrieving system default language:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving system default language.',
       error: error.message
     });
   }

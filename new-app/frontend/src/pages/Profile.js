@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Table, Spinner, Badge } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import NotificationSubscriber from '../components/NotificationSubscriber';
 import api from '../services/api';
 
 const Profile = () => {
   const { user, logout } = useAuth();
+  const { texts } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [orderHistory, setOrderHistory] = useState([]);
@@ -130,16 +132,16 @@ const Profile = () => {
 
   return (
     <Container>
-      <h1 className="mb-4">Profilo Utente</h1>
+      <h1 className="mb-4">{texts.user_profile}</h1>
       
       <Row>
         <Col md={6}>
           <Card className="mb-4">
-            <Card.Header as="h5">Informazioni Personali</Card.Header>
+            <Card.Header as="h5">{texts.personal_information}</Card.Header>
             <Card.Body>
-              <p><strong>Nome:</strong> {user?.displayName}</p>
-              <p><strong>Ruolo:</strong> {user?.isAdmin ? 'Amministratore' : 'Utente'}</p>
-              <p className="text-muted">La password è gestita tramite Active Directory (LDAP)</p>
+              <p><strong>{texts.name}:</strong> {user?.displayName}</p>
+              <p><strong>{texts.role}:</strong> {user?.isAdmin ? texts.role_admin : texts.role_user}</p>
+              <p className="text-muted">{texts.password_managed_by_ldap}</p>
             </Card.Body>
           </Card>
           
@@ -148,10 +150,10 @@ const Profile = () => {
         
         <Col md={6}>
           <Card>
-            <Card.Header as="h5">Sessione</Card.Header>
+            <Card.Header as="h5">{texts.session}</Card.Header>
             <Card.Body>
               <Button variant="danger" onClick={logout}>
-                Logout
+                {texts.logout}
               </Button>
             </Card.Body>
           </Card>
@@ -162,12 +164,12 @@ const Profile = () => {
       <Row className="mt-4">
         <Col>
           <Card>
-            <Card.Header as="h5">Statistiche Mensili</Card.Header>
+            <Card.Header as="h5">{texts.monthly_statistics}</Card.Header>
             <Card.Body>
               {loadingHistory ? (
                 <div className="text-center my-3">
                   <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Caricamento...</span>
+                    <span className="visually-hidden">{texts.loading}</span>
                   </Spinner>
                 </div>
               ) : userStats ? (
@@ -176,7 +178,7 @@ const Profile = () => {
                     <Card className="h-100 text-center">
                       <Card.Body>
                         <i className="bi bi-currency-euro fs-2 text-primary mb-2"></i>
-                        <h5>Spesa Totale</h5>
+                        <h5>{texts.total_spent}</h5>
                         <h3 className="text-primary">€{userStats.totalSpent.toFixed(2)}</h3>
                       </Card.Body>
                     </Card>
@@ -185,9 +187,9 @@ const Profile = () => {
                     <Card className="h-100 text-center">
                       <Card.Body>
                         <i className="bi bi-calendar-check fs-2 text-success mb-2"></i>
-                        <h5>Media Giornaliera</h5>
+                        <h5>{texts.daily_average}</h5>
                         <h3 className="text-success">€{userStats.averageDailySpent.toFixed(2)}</h3>
-                        <p className="text-muted">Su {userStats.daysWithOrders} giorni</p>
+                        <p className="text-muted">{texts.days} {userStats.daysWithOrders} {texts.days_word}</p>
                       </Card.Body>
                     </Card>
                   </Col>
@@ -195,10 +197,10 @@ const Profile = () => {
                     <Card className="h-100 text-center">
                       <Card.Body>
                         <i className="bi bi-star-fill fs-2 text-warning mb-2"></i>
-                        <h5>Piatto Preferito</h5>
+                        <h5>{texts.favorite_dish}</h5>
                         <h3 className="text-warning">{userStats.mostOrderedDish.name}</h3>
                         <Badge bg="warning" className="text-dark">
-                          {userStats.mostOrderedDish.count} volte
+                          {userStats.mostOrderedDish.count} {texts.times}
                         </Badge>
                       </Card.Body>
                     </Card>
@@ -207,16 +209,16 @@ const Profile = () => {
                     <Card className="h-100 text-center">
                       <Card.Body>
                         <i className="bi bi-box fs-2 text-info mb-2"></i>
-                        <h5>Totale Items</h5>
+                        <h5>{texts.total_items}</h5>
                         <h3 className="text-info">{userStats.totalItems}</h3>
-                        <p className="text-muted">Ordinati nel mese</p>
+                        <p className="text-muted">{texts.ordered_this_month}</p>
                       </Card.Body>
                     </Card>
                   </Col>
                 </Row>
               ) : (
                 <Alert variant="info">
-                  Non ci sono dati sufficienti per generare statistiche.
+                  {texts.no_statistics_data}
                 </Alert>
               )}
             </Card.Body>
@@ -227,14 +229,14 @@ const Profile = () => {
       <Row className="mt-4">
         <Col>
           <Card>
-            <Card.Header as="h5">Storico Ordini (Ultimo Mese)</Card.Header>
+            <Card.Header as="h5">{texts.order_history_month}</Card.Header>
             <Card.Body>
               {error && <Alert variant="danger">{error}</Alert>}
               
               {loadingHistory ? (
                 <div className="text-center my-4">
                   <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Caricamento...</span>
+                    <span className="visually-hidden">{texts.loading}</span>
                   </Spinner>
                 </div>
               ) : orderHistory.length > 0 ? (
@@ -245,10 +247,10 @@ const Profile = () => {
                       <Table responsive striped hover>
                         <thead>
                           <tr>
-                            <th>Prodotto</th>
-                            <th>Prezzo</th>
-                            <th>Quantità</th>
-                            <th>Totale</th>
+                            <th>{texts.product}</th>
+                            <th>{texts.price}</th>
+                            <th>{texts.quantity}</th>
+                            <th>{texts.total}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -261,7 +263,7 @@ const Profile = () => {
                             </tr>
                           ))}
                           <tr className="table-info">
-                            <td colSpan={3} className="text-end fw-bold">Totale giornaliero:</td>
+                            <td colSpan={3} className="text-end fw-bold">{texts.daily_total}</td>
                             <td className="fw-bold">€{(typeof dayOrder.total === 'number' ? dayOrder.total : parseFloat(dayOrder.total)).toFixed(2)}</td>
                           </tr>
                         </tbody>
@@ -271,7 +273,7 @@ const Profile = () => {
                 </>
               ) : (
                 <Alert variant="info">
-                  Non ci sono ordini nell'ultimo mese.
+                  {texts.no_orders_last_month}
                 </Alert>
               )}
             </Card.Body>

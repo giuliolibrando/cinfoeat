@@ -69,7 +69,7 @@ router.put('/config/:function', verifyToken, verifyAdmin, async (req, res) => {
     // Se stiamo aggiornando lo stato degli ordini, invia notifiche
     if (functionName === 'order_state') {
       const message = state
-        ? 'Gli ordini sono ora aperti!'
+        ? 'Gli ordini sono ora aperti! Puoi effettuare le tue ordinazioni.'
         : 'Gli ordini sono ora chiusi! Non è più possibile ordinare.';
       
       // Controlla se le notifiche sono abilitate
@@ -80,13 +80,23 @@ router.put('/config/:function', verifyToken, verifyAdmin, async (req, res) => {
         });
         
         if (notificationsConfig && notificationsConfig.state) {
+          // Priorità alta per le notifiche di chiusura degli ordini
           await sendPushNotificationToAll(
             state ? 'Ordini Aperti' : 'Ordini Chiusi',
-            message
+            message,
+            {
+              urgency: state ? 'normal' : 'high',
+              ttl: 60 * 60 // Un'ora di validità
+            }
           );
+          
+          console.log(`Notifica di stato ordini (${state ? 'aperti' : 'chiusi'}) inviata a tutti gli utenti`);
+        } else {
+          console.log('Notifiche disabilitate, non è stata inviata alcuna notifica push');
         }
       } catch (notificationError) {
         console.error('Errore durante l\'invio delle notifiche:', notificationError);
+        // Continua comunque, l'errore nelle notifiche non deve bloccare l'aggiornamento della configurazione
       }
     }
     
@@ -458,6 +468,75 @@ router.put('/configs/:function', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Errore nell\'aggiornamento della configurazione:', error);
     res.status(500).json({ error: 'Errore nell\'aggiornamento della configurazione' });
+  }
+});
+
+// Get system default language
+router.get('/system-language', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const [config, created] = await Config.findOrCreate({
+      where: { function: 'default_language' },
+      defaults: { 
+        function: 'default_language',
+        state: true,
+        value: 'en'
+      }
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        language: config.value || 'en'
+      }
+    });
+  } catch (error) {
+    console.error('Error retrieving system default language:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving system default language.',
+      error: error.message
+    });
+  }
+});
+
+// Update system default language
+router.put('/system-language', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { language } = req.body;
+    
+    if (!language) {
+      return res.status(400).json({
+        success: false,
+        message: 'Language parameter is required.'
+      });
+    }
+    
+    const [config, created] = await Config.findOrCreate({
+      where: { function: 'default_language' },
+      defaults: {
+        function: 'default_language',
+        state: true,
+        value: language
+      }
+    });
+    
+    if (!created) {
+      config.value = language;
+      await config.save();
+    }
+    
+    res.json({
+      success: true,
+      message: 'System default language updated successfully.',
+      data: { language }
+    });
+  } catch (error) {
+    console.error('Error updating system default language:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating system default language.',
+      error: error.message
+    });
   }
 });
 

@@ -20,6 +20,11 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
+  language: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    defaultValue: 'en'
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

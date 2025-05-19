@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/admin.model');
+const User = require('../models/user.model');
 const dotenv = require('dotenv');
 const ldap = require('ldapjs');
 const { verifyToken } = require('../middleware/auth');
+const Config = require('../models/config.model');
 
 dotenv.config();
 
@@ -363,6 +365,73 @@ router.get('/me', verifyToken, async (req, res) => {
 router.post('/logout', verifyToken, async (req, res) => {
   // Implementa la logica di logout
   res.json({ success: true, message: 'Logout effettuato con successo.' });
+});
+
+// Update user language preference
+router.post('/language', verifyToken, async (req, res) => {
+  try {
+    const { language } = req.body;
+    
+    if (!language) {
+      return res.status(400).json({
+        success: false,
+        message: 'Language parameter is required.'
+      });
+    }
+    
+    // Update the global system language configuration
+    const [config, created] = await Config.findOrCreate({
+      where: { function: 'default_language' },
+      defaults: {
+        function: 'default_language',
+        state: true,
+        value: language
+      }
+    });
+    
+    if (!created) {
+      config.value = language;
+      await config.save();
+    }
+    
+    res.json({
+      success: true,
+      message: 'Language preference updated successfully.',
+      data: { language }
+    });
+  } catch (error) {
+    console.error('Error updating language preference:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating language preference.',
+      error: error.message
+    });
+  }
+});
+
+// Get user language preference
+router.get('/language', verifyToken, async (req, res) => {
+  try {
+    // Get the global system language configuration
+    const config = await Config.findOne({
+      where: { function: 'default_language' }
+    });
+    
+    // Default to English if config not found
+    const language = config && config.value ? config.value : 'en';
+    
+    res.json({
+      success: true,
+      data: { language }
+    });
+  } catch (error) {
+    console.error('Error retrieving language preference:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving language preference.',
+      error: error.message
+    });
+  }
 });
 
 module.exports = router; 

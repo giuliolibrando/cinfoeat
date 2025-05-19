@@ -2,10 +2,12 @@ import React from 'react';
 import { Navbar as BootstrapNavbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import logoWhite from '../assets/logo_white.png';
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { texts } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -35,7 +37,7 @@ const Navbar = () => {
               <>
                 {user && user.isAdmin && (
                   <Nav.Link as={Link} to="/admin">
-                    Amministrazione
+                    {texts.admin_panel}
                   </Nav.Link>
                 )}
               </>
@@ -45,22 +47,22 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <NavDropdown 
-                  title={`Benvenuto, ${user?.displayName || 'Utente'}`}
+                  title={`${texts.welcome}, ${user?.displayName || 'User'}`}
                   id="user-dropdown"
                   align="end"
                 >
                   <NavDropdown.Item as={Link} to="/profile">
-                    Profilo
+                    {texts.profile}
                   </NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={handleLogout}>
-                    Logout
+                    {texts.logout}
                   </NavDropdown.Item>
                 </NavDropdown>
               </>
             ) : (
               <Nav.Link as={Link} to="/login">
-                Login
+                {texts.login}
               </Nav.Link>
             )}
           </Nav>

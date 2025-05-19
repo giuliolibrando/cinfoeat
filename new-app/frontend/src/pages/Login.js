@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import logoWhite from '../assets/logo_white.png';
 
 const Login = () => {
@@ -9,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, error, isAuthenticated } = useAuth();
+  const { texts } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const Login = () => {
         </div>
         <Card.Body>
           <div className="text-center mb-4">
-            <p className="text-muted">Accedi con le tue credenziali istituzionali</p>
+            <p className="text-muted">{texts.login_intro || "Accedi con le tue credenziali istituzionali"}</p>
           </div>
 
           {error && (
@@ -65,10 +67,10 @@ const Login = () => {
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formUsername">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>{texts.username}</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Inserisci il tuo username istituzionale"
+                placeholder={texts.enter_username || "Inserisci il tuo username istituzionale"}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -77,10 +79,10 @@ const Login = () => {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPassword">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>{texts.password}</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Password"
+                placeholder={texts.password}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -94,7 +96,7 @@ const Login = () => {
               className="w-100"
               disabled={loading}
             >
-              {loading ? 'Accesso in corso...' : 'Accedi'}
+              {loading ? (texts.logging_in || "Accesso in corso...") : texts.login}
             </Button>
           </Form>
         </Card.Body>

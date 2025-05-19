@@ -37,7 +37,9 @@ axiosInstance.interceptors.response.use(
 export const authService = {
   login: (credentials) => axiosInstance.post('/auth/login', credentials),
   me: () => axiosInstance.get('/auth/me'),
-  logout: () => axiosInstance.post('/auth/logout')
+  logout: () => axiosInstance.post('/auth/logout'),
+  getLanguage: () => axiosInstance.get('/auth/language'),
+  setLanguage: (language) => axiosInstance.post('/auth/language', { language })
 };
 
 // Funzione per gestire gli errori di autenticazione
@@ -95,11 +97,21 @@ export const userChoiceService = {
 
 // API pubbliche (senza autenticazione)
 export const publicService = {
-  getOrderState: () => axiosInstance.get('/public/order-state'),
+  getOrderState: () => axiosInstance.get('/public/order-state', { 
+    headers: { 
+      'Cache-Control': 'no-cache, no-store',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    },
+    params: {
+      _t: Date.now() // Aggiunge un timestamp per evitare il caching
+    }
+  }),
   getAllUserChoices: () => axiosInstance.get('/public/all-user-choices'),
   getExternalMenuConfig: () => axiosInstance.get('/public/external-menu-config'),
   getHomeNotes: () => axiosInstance.get('/public/home-notes'),
-  getPaypalEmail: () => axiosInstance.get('/public/paypal-email')
+  getPaypalEmail: () => axiosInstance.get('/public/paypal-email'),
+  getSystemLanguage: () => axiosInstance.get('/public/system-language')
 };
 
 // API per le configurazioni e amministrazione
@@ -113,6 +125,8 @@ export const adminService = {
   removeAdmin: (id) => axiosInstance.delete(`/admin/admins/${id}`),
   getConfigs: () => axiosInstance.get('/admin/configs'),
   updateConfigs: (functionName, state, value) => axiosInstance.put(`/admin/configs/${functionName}`, { state, value }),
+  getSystemLanguage: () => axiosInstance.get('/admin/system-language'),
+  setSystemLanguage: (language) => axiosInstance.put('/admin/system-language', { language })
 };
 
 // API per i pagamenti

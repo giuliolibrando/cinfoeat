@@ -13,12 +13,14 @@ const MenuHistory = require('./menuHistory.model');
 // Define associations
 UserChoice.belongsTo(MenuOption, {
   foreignKey: 'option_id',
-  as: 'menuOption'
+  as: 'menuOption',
+  onDelete: 'CASCADE'
 });
 
 MenuOption.hasMany(UserChoice, {
   foreignKey: 'option_id',
-  as: 'choices'
+  as: 'choices',
+  onDelete: 'CASCADE'
 });
 
 // Initialize models

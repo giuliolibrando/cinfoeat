@@ -13,6 +13,7 @@ export function ConfigProvider({ children }) {
   const [paypalConfig, setPaypalConfig] = useState({ state: false, value: '' });
   const [orderState, setOrderState] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
   useEffect(() => {
     fetchConfigurations();
@@ -20,28 +21,65 @@ export function ConfigProvider({ children }) {
 
   const fetchConfigurations = async () => {
     try {
-      setLoading(true);
+      // Non reimpostiamo il loading a true per aggiornamenti successivi
+      // per evitare flickering dell'interfaccia
+      const isInitialLoad = loading;
+      
+      // Uso Promise.all per fare tutte le richieste in parallelo
+      const [
+        externalMenuResponse,
+        homeNotesResponse,
+        paypalResponse,
+        orderStateResponse
+      ] = await Promise.all([
+        publicService.getExternalMenuConfig().catch(err => {
+          console.error('Errore nel caricamento della configurazione menu esterno:', err);
+          return { data: { data: externalMenuConfig } }; // Usa il valore corrente in caso di errore
+        }),
+        publicService.getHomeNotes().catch(err => {
+          console.error('Errore nel caricamento delle note home:', err);
+          return { data: { data: homeNotes } }; // Usa il valore corrente in caso di errore
+        }),
+        publicService.getPaypalEmail().catch(err => {
+          console.error('Errore nel caricamento della configurazione PayPal:', err);
+          return { data: { data: paypalConfig } }; // Usa il valore corrente in caso di errore
+        }),
+        publicService.getOrderState().catch(err => {
+          console.error('Errore nel caricamento dello stato ordini:', err);
+          return { data: { data: { state: orderState } } }; // Usa il valore corrente in caso di errore
+        })
+      ]);
 
-      // Fetch external menu configuration
-      const externalMenuResponse = await publicService.getExternalMenuConfig();
-      setExternalMenuConfig(externalMenuResponse.data.data);
+      // Aggiorna i valori solo se sono cambiati
+      const newExternalMenuConfig = externalMenuResponse.data.data;
+      const newHomeNotes = homeNotesResponse.data.data;
+      const newPaypalConfig = paypalResponse.data.data || { state: false, value: '' };
+      const newOrderState = orderStateResponse.data.data.state;
+      
+      // Controlla se lo stato degli ordini è cambiato
+      // Facciamo un confronto esplicito per assicurarci che i valori booleani siano confrontati correttamente
+      const orderStateChanged = newOrderState !== orderState;
+      console.log(`Stato ordini: attuale=${orderState}, nuovo=${newOrderState}, cambiato=${orderStateChanged}`);
+      
+      if (orderStateChanged) {
+        console.log(`Aggiornamento stato ordini da ${orderState} a ${newOrderState}`);
+        setOrderState(newOrderState);
+      }
 
-      // Fetch home notes configuration
-      const homeNotesResponse = await publicService.getHomeNotes();
-      setHomeNotes(homeNotesResponse.data.data);
-
-      // Fetch PayPal configuration
-      const paypalResponse = await publicService.getPaypalEmail();
-      setPaypalConfig(paypalResponse.data.data || { state: false, value: '' });
-
-      // Fetch order state
-      const orderStateResponse = await publicService.getOrderState();
-      setOrderState(orderStateResponse.data.data.state);
-
-      setLoading(false);
+      // Aggiornamento degli altri stati
+      setExternalMenuConfig(newExternalMenuConfig);
+      setHomeNotes(newHomeNotes);
+      setPaypalConfig(newPaypalConfig);
+      
+      setLastUpdate(Date.now());
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching configurations:', error);
-      setLoading(false);
+      if (loading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -60,6 +98,7 @@ export function ConfigProvider({ children }) {
     paypalConfig,
     orderState,
     loading,
+    lastUpdate,
     getExternalMenuUrl,
     refreshConfigs: fetchConfigurations
   };

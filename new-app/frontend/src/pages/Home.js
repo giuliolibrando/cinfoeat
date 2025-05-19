@@ -3,6 +3,7 @@ import { Row, Col, Card, Button, Alert, Spinner, Badge, Form, Modal, ListGroup, 
 import { menuService, userChoiceService, adminService, publicService, paymentService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useConfig } from '../context/ConfigContext';
+import { useLanguage } from '../context/LanguageContext';
 // Importiamo i componenti di FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +12,7 @@ import AlertModal from '../components/AlertModal';
 
 const Home = () => {
   const { user } = useAuth();
+  const { texts } = useLanguage();
   // Get configurations from ConfigContext
   const { 
     externalMenuConfig, 
@@ -18,7 +20,8 @@ const Home = () => {
     paypalConfig, 
     orderState: configOrderState, 
     getExternalMenuUrl,
-    loading: configLoading 
+    loading: configLoading,
+    refreshConfigs
   } = useConfig();
   
   const [menuOptions, setMenuOptions] = useState([]);
@@ -172,22 +175,30 @@ const Home = () => {
     fetchData();
   }, [user]);
 
+  // Effetto per aggiornare l'orderState quando cambia nel ConfigContext
+  useEffect(() => {
+    // Aggiorna lo stato ordini senza mostrare alert
+    console.log(`Home: aggiornamento stato ordini da ${orderState} a ${configOrderState}`);
+    setOrderState(configOrderState);
+  }, [configOrderState]);
+  
   // Funzione per controllare lo stato degli ordini
   const checkOrderState = async () => {
-    // Usiamo lo stato degli ordini dal ConfigContext
-    setOrderState(configOrderState);
+    // Aggiorna le configurazioni dal server
+    console.log("Home: richiesta aggiornamento configurazioni");
+    refreshConfigs();
   };
-
-  // Effetto per il polling periodico dello stato degli ordini
+  
+  // Effetto per il polling dello stato degli ordini (ogni 5 secondi)
   useEffect(() => {
     // Controlla lo stato degli ordini ogni 5 secondi
     const intervalId = setInterval(checkOrderState, 5000);
-
+    
     // Cleanup dell'intervallo quando il componente viene smontato
     return () => {
       clearInterval(intervalId);
     };
-  }, [user]);
+  }, []);
 
   const handleAddChoice = (option) => {
     setSelectedOption(option);
@@ -303,36 +314,36 @@ const Home = () => {
     return (
       <Card className="mt-3">
         <Card.Header className="bg-primary text-white">
-          <h5 className="mb-0">Pagamento</h5>
+          <h5 className="mb-0">{texts.payment}</h5>
         </Card.Header>
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <span className="fw-bold">Totale da pagare:</span>
+            <span className="fw-bold">{texts.total_to_pay}</span>
             <span className="fs-5">€{total.toFixed(2)}</span>
           </div>
           
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <span className="fw-bold">Pagato:</span>
+            <span className="fw-bold">{texts.paid}</span>
             <span className="fs-5 text-success">€{paid.toFixed(2)}</span>
           </div>
 
           {remaining > 0 && (
             <>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <span className="fw-bold">Rimanente:</span>
+                <span className="fw-bold">{texts.remaining}</span>
                 <span className="fs-5 text-danger">€{remaining.toFixed(2)}</span>
               </div>
 
               {partialChangeGiven > 0 && (
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="fw-bold">Resto ricevuto:</span>
+                  <span className="fw-bold">{texts.change_received}</span>
                   <span className="fs-5 text-info">€{partialChangeGiven.toFixed(2)}</span>
                 </div>
               )}
 
               {remainingChange > 0 && (
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="fw-bold">Resto da ricevere:</span>
+                  <span className="fw-bold">{texts.change_to_receive}</span>
                   <span className="fs-5 text-warning">€{remainingChange.toFixed(2)}</span>
                 </div>
               )}
@@ -344,7 +355,7 @@ const Home = () => {
                   onClick={handlePaypalPayment}
                 >
                   <i className="fab fa-paypal me-2"></i>
-                  Paga con PayPal
+                  {texts.pay_with_paypal}
                 </Button>
               )}
             </>
@@ -354,11 +365,11 @@ const Home = () => {
             <>
               <div className="alert alert-success mb-3">
                 <FontAwesomeIcon icon={faCheckDouble} className="me-2" />
-                Pagamento completato
+                {texts.payment_completed}
               </div>
               {remainingChange > 0 && (
                 <div className="d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">Resto da ricevere:</span>
+                  <span className="fw-bold">{texts.change_to_receive}</span>
                   <span className="fs-5 text-warning">€{remainingChange.toFixed(2)}</span>
                 </div>
               )}
@@ -373,20 +384,24 @@ const Home = () => {
     return (
       <div className="text-center my-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Caricamento in corso...</p>
+        <p className="mt-3">{texts.loading}</p>
       </div>
     );
+  }
+
+  if (error) {
+    return <Alert variant="danger">{texts.error_occurred}</Alert>;
   }
 
   return (
     <Container fluid className="py-4">
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center">
-          <h2>Ordine Pranzo</h2>
+          <h2>{texts.lunch_order}</h2>
           <div className="d-flex align-items-center">
-            <h4 className="mb-0 me-3">Stato ordini:</h4>
+            <h4 className="mb-0 me-3">{texts.orders_state}</h4>
             <Badge bg={orderState ? 'success' : 'danger'} className="fs-5 px-4 py-2">
-              {orderState ? 'Aperti' : 'Chiusi'}
+              {orderState ? texts.order_state_open : texts.order_state_closed}
             </Badge>
           </div>
         </div>
@@ -396,8 +411,8 @@ const Home = () => {
       
       {!orderState && (
         <Alert variant="danger" className="mb-4">
-          <h5 className="mb-2">Ordini Chiusi</h5>
-          <p className="mb-0">Gli ordini sono attualmente chiusi. Non è possibile aggiungere o modificare il tuo ordine.</p>
+          <h5 className="mb-2">{texts.order_state_closed}</h5>
+          <p className="mb-0">{texts.orders_closed_msg}</p>
         </Alert>
       )}
 
@@ -405,7 +420,7 @@ const Home = () => {
       {homeNotes.state && homeNotes.value !== '' && (
         <Card className="mb-4 bg-info text-white">
           <Card.Body>
-            <h5 className="mb-3">Note Importanti</h5>
+            <h5 className="mb-3">{texts.important_notes}</h5>
             <p className="mb-0" style={{ whiteSpace: 'pre-line' }}>{homeNotes.value}</p>
           </Card.Body>
         </Card>
@@ -416,8 +431,8 @@ const Home = () => {
         <Card className="mb-4 bg-light">
           <Card.Body className="d-flex justify-content-between align-items-center">
             <div>
-              <h5 className="mb-1">Menu Esterno Disponibile</h5>
-              <p className="text-muted mb-0">Clicca sul pulsante per visualizzare il menu completo</p>
+              <h5 className="mb-1">{texts.external_menu_available}</h5>
+              <p className="text-muted mb-0">{texts.click_button_view_menu}</p>
             </div>
             <a 
               href={getExternalMenuUrl(externalMenuConfig.value)}
@@ -426,7 +441,7 @@ const Home = () => {
               className="btn btn-primary"
             >
               <i className="fas fa-external-link-alt me-2"></i>
-              Apri Menu Esterno
+              {texts.open_external_menu}
             </a>
           </Card.Body>
         </Card>
@@ -437,7 +452,7 @@ const Home = () => {
           <Card className="mb-4">
             <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
               <div>
-                <h5 className="mb-0">Menu Disponibile</h5>
+                <h5 className="mb-0">{texts.available_menu}</h5>
                 <small>{menuDate}</small>
               </div>
               <Button 
@@ -445,14 +460,14 @@ const Home = () => {
                 size="sm" 
                 onClick={() => setShowNewDishModal(true)}
                 disabled={!orderState}
-                title={!orderState ? "Gli ordini sono chiusi" : "Crea un nuovo piatto"}
+                title={!orderState ? texts.orders_closed_msg : texts.create_new_dish}
               >
-                <FontAwesomeIcon icon={faPlus} /> Crea Nuovo Piatto
+                <FontAwesomeIcon icon={faPlus} /> {texts.create_new_dish}
               </Button>
             </Card.Header>
             <Card.Body>
               {!menuOptions || menuOptions.length === 0 ? (
-                <Alert variant="info">Nessuna opzione menu disponibile.</Alert>
+                <Alert variant="info">{texts.no_menu_options}</Alert>
               ) : (
                 <Row>
                   {menuOptions.map((option) => (
@@ -461,27 +476,27 @@ const Home = () => {
                         <Card.Body>
                           <Card.Title>{option.item}</Card.Title>
                           <Card.Text>
-                            Prezzo: €{parseFloat(option.price).toFixed(2)}
+                            {texts.price} €{parseFloat(option.price).toFixed(2)}
                             {option.flag_isdefault && (
                               <Badge bg="info" className="ms-2">
-                                Default
+                                {texts.default}
                               </Badge>
                             )}
                           </Card.Text>
                           {orderState ? (
-                            <Button
-                              variant="primary"
+                            <Button 
+                              variant="primary" 
                               onClick={() => handleAddChoice(option)}
                             >
-                              Aggiungi
+                              {texts.add_to_order}
                             </Button>
                           ) : (
                             <Button
                               variant="secondary"
                               disabled
-                              title="Gli ordini sono chiusi"
+                              title={texts.orders_closed_msg}
                             >
-                              Aggiungi
+                              {texts.add}
                             </Button>
                           )}
                         </Card.Body>
@@ -492,15 +507,15 @@ const Home = () => {
               )}
             </Card.Body>
           </Card>
-          
+        
           {/* Sezione degli ordini degli altri utenti */}
           <Card className="mb-4">
             <Card.Header className="bg-info text-white">
-              <h5 className="mb-0">Cosa Hanno Ordinato Gli Altri</h5>
+              <h5 className="mb-0">{texts.others_orders}</h5>
             </Card.Header>
             <Card.Body>
               {allUserChoices.length === 0 ? (
-                <Alert variant="info">Nessun altro utente ha effettuato ordini.</Alert>
+                <Alert variant="info">{texts.no_other_orders}</Alert>
               ) : (
                 <ListGroup>
                   {allUserChoices.map((userChoice, index) => (
@@ -514,7 +529,7 @@ const Home = () => {
                         ))}
                       </ul>
                       <div className="text-end mt-1">
-                        <small className="text-muted">Totale: €{parseFloat(userChoice.total).toFixed(2)}</small>
+                        <small className="text-muted">{texts.total} €{parseFloat(userChoice.total).toFixed(2)}</small>
                       </div>
                     </ListGroup.Item>
                   ))}
@@ -527,11 +542,11 @@ const Home = () => {
         <Col md={4}>
           <Card>
             <Card.Header className="bg-success text-white">
-              <h5 className="mb-0">Il tuo Ordine</h5>
+              <h5 className="mb-0">{texts.your_order}</h5>
             </Card.Header>
             <Card.Body>
               {!userChoices?.choices || userChoices.choices.length === 0 ? (
-                <Alert variant="info">Non hai ancora aggiunto elementi al tuo ordine.</Alert>
+                <Alert variant="info">{texts.no_orders_yet}</Alert>
               ) : (
                 <>
                   {userChoices.choices.map((choice) => (
@@ -579,7 +594,7 @@ const Home = () => {
                   ))}
                   
                   <div className="mt-3 text-end">
-                    <h6>Totale: €{parseFloat(userChoices.total).toFixed(2)}</h6>
+                    <h6>{texts.total} €{parseFloat(userChoices.total).toFixed(2)}</h6>
                   </div>
                   
                   {renderPaymentInfo()}
@@ -593,15 +608,15 @@ const Home = () => {
       {/* Modal per aggiungere un elemento */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Aggiungi al tuo ordine</Modal.Title>
+          <Modal.Title>{texts.add_to_order}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedOption && (
             <div>
               <h5>{selectedOption.item}</h5>
-              <p>Prezzo: €{parseFloat(selectedOption.price).toFixed(2)}</p>
+              <p>{texts.price} €{parseFloat(selectedOption.price).toFixed(2)}</p>
               <Form.Group className="mb-3">
-                <Form.Label>Quantità</Form.Label>
+                <Form.Label>{texts.quantity}</Form.Label>
                 <div className="d-flex align-items-center">
                   <Button
                     variant="outline-secondary"
@@ -619,17 +634,17 @@ const Home = () => {
                 </div>
               </Form.Group>
               <p className="mt-3">
-                Totale: €{parseFloat(selectedOption.price * quantity).toFixed(2)}
+                {texts.total} €{parseFloat(selectedOption.price * quantity).toFixed(2)}
               </p>
             </div>
           )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Annulla
+            {texts.cancel}
           </Button>
           <Button variant="primary" onClick={handleConfirmAdd}>
-            Aggiungi
+            {texts.add}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -637,15 +652,15 @@ const Home = () => {
       {/* Modal per creare un nuovo piatto */}
       <Modal show={showNewDishModal} onHide={() => setShowNewDishModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Crea Nuovo Piatto</Modal.Title>
+          <Modal.Title>{texts.create_new_dish}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3" controlId="formDishName">
-              <Form.Label>Nome Piatto</Form.Label>
+              <Form.Label>{texts.dish_name}</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Inserisci il nome del piatto"
+                placeholder={texts.enter_dish_name}
                 value={newDishName}
                 onChange={(e) => setNewDishName(e.target.value)}
                 required
@@ -653,11 +668,11 @@ const Home = () => {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formDishPrice">
-              <Form.Label>Prezzo</Form.Label>
+              <Form.Label>{texts.dish_price}</Form.Label>
               <Form.Control
                 type="number"
                 step="0.01"
-                placeholder="Inserisci il prezzo"
+                placeholder={texts.enter_price}
                 value={newDishPrice}
                 onChange={(e) => setNewDishPrice(e.target.value)}
                 required
@@ -667,10 +682,10 @@ const Home = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNewDishModal(false)}>
-            Annulla
+            {texts.cancel}
           </Button>
           <Button variant="primary" onClick={handleCreateNewDish}>
-            Crea Piatto
+            {texts.create_dish}
           </Button>
         </Modal.Footer>
       </Modal>

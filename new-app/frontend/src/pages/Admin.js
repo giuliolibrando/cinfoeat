@@ -17,6 +17,7 @@ import {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useConfig } from '../context/ConfigContext';
+import { useLanguage } from '../context/LanguageContext';
 // Importazioni FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -41,6 +42,7 @@ import { toast } from 'react-hot-toast';
 const Admin = () => {
   const { user } = useAuth();
   const { refreshConfigs } = useConfig();
+  const { language, changeLanguage, texts } = useLanguage();
   const [menuOptions, setMenuOptions] = useState([]);
   const [orderSummary, setOrderSummary] = useState({ users: [], grandTotal: 0 });
   const [admins, setAdmins] = useState([]);
@@ -85,6 +87,7 @@ const Admin = () => {
   // Stato configurazioni
   const [orderState, setOrderState] = useState(false);
   const [notificationsState, setNotificationsState] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(language);
 
   // Stato per notifica personalizzata simulata
   const [customNotificationTitle, setCustomNotificationTitle] = useState('');
@@ -395,7 +398,7 @@ const Admin = () => {
         const updatedOptions = response.data.data?.options || [];
         console.log('Aggiornamento menu con opzioni:', updatedOptions);
         setMenuOptions(updatedOptions);
-        
+
         // Reset form
         setNewMenuItem({ item: '', price: '' });
         setNewMenuIsDefault(false);
@@ -656,15 +659,15 @@ const Admin = () => {
     
     // Tenta di usare l'API Clipboard, con fallback al metodo vecchio
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(clipboardText)
-        .then(() => {
-          alert('Riepilogo ordini copiato negli appunti!');
-        })
-        .catch(err => {
-          console.error('Errore durante la copia negli appunti:', err);
+    navigator.clipboard.writeText(clipboardText)
+      .then(() => {
+        alert('Riepilogo ordini copiato negli appunti!');
+      })
+      .catch(err => {
+        console.error('Errore durante la copia negli appunti:', err);
           // Usa il metodo di fallback se l'API Clipboard fallisce
           fallbackCopyTextToClipboard(clipboardText);
-        });
+      });
     } else {
       // Usa il metodo di fallback se l'API Clipboard non è disponibile
       fallbackCopyTextToClipboard(clipboardText);
@@ -709,15 +712,15 @@ const Admin = () => {
     
     // Tenta di usare l'API Clipboard, con fallback al metodo vecchio
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(clipboardText)
-        .then(() => {
-          alert(`Ordine di ${userSummary.display_name} copiato negli appunti!`);
-        })
-        .catch(err => {
-          console.error('Errore durante la copia negli appunti:', err);
+    navigator.clipboard.writeText(clipboardText)
+      .then(() => {
+        alert(`Ordine di ${userSummary.display_name} copiato negli appunti!`);
+      })
+      .catch(err => {
+        console.error('Errore durante la copia negli appunti:', err);
           // Usa il metodo di fallback se l'API Clipboard fallisce
           fallbackCopyTextToClipboard(clipboardText);
-        });
+      });
     } else {
       // Usa il metodo di fallback se l'API Clipboard non è disponibile
       fallbackCopyTextToClipboard(clipboardText);
@@ -838,12 +841,12 @@ const Admin = () => {
         console.log('Creazione nuovo pagamento per:', username);
         response = await api.payment.create({
           username: username,
-          display_name: displayName,
-          amount_paid: parseFloat(amountPaid),
-          total_amount: totalAmount,
+        display_name: displayName,
+        amount_paid: parseFloat(amountPaid),
+        total_amount: totalAmount,
           is_completed: isCompleted,
           partial_change_given: partialChange
-        });
+      });
       }
 
       console.log('Risposta salvataggio pagamento:', response);
@@ -1100,11 +1103,11 @@ const Admin = () => {
         refreshConfigs();
       } else {
         // Comportamento standard per altre configurazioni
-        await api.admin.updateConfigs(functionName, state, value);
-        setConfigs(prev => ({
-          ...prev,
-          [functionName]: { state, value }
-        }));
+      await api.admin.updateConfigs(functionName, state, value);
+      setConfigs(prev => ({
+        ...prev,
+        [functionName]: { state, value }
+      }));
         
         // Refresh the global config context to update all components
         refreshConfigs();
@@ -1259,7 +1262,7 @@ const Admin = () => {
         try {
           const successful = document.execCommand('copy');
           if(successful) {
-            alert('Riepilogo copiato negli appunti!');
+      alert('Riepilogo copiato negli appunti!');
           } else {
             alert('Operazione di copia non riuscita');
           }
@@ -1399,7 +1402,7 @@ const Admin = () => {
       toast.error('Si è verificato un errore durante l\'esportazione dello storico.');
     }
   };
-  
+
   const renderOrderHistory = () => {
     if (loadingHistory) {
       return (
@@ -1413,7 +1416,7 @@ const Admin = () => {
     if (!orderHistory.length) {
       return (
         <Alert variant="info">
-          Nessuno storico ordini disponibile.
+          {texts.no_order_history}
         </Alert>
       );
     }
@@ -1485,6 +1488,12 @@ const Admin = () => {
     });
   };
 
+  // Funzione per gestire il cambio lingua
+  const handleLanguageChange = (lang) => {
+    setCurrentLanguage(lang);
+    changeLanguage(lang);
+  };
+
   if (loading) {
     return (
       <div className="container mt-4">
@@ -1511,20 +1520,20 @@ const Admin = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Pannello di Amministrazione</h2>
+      <h2>{texts.admin_panel}</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       
       <Tabs defaultActiveKey="orders" className="mb-4">
-        <Tab eventKey="orders" title="Ordini">
+        <Tab eventKey="orders" title={texts.admin_orders}>
           <div className="admin-section">
-            <h3>Gestione Ordini</h3>
+            <h3>{texts.orders_management}</h3>
             <div className="mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <p className="mb-0">
-                    Stato ordini: 
+                    {texts.orders_state} 
                     <Badge bg={orderState ? 'success' : 'danger'} className="ms-2">
-                      {orderState ? 'Aperti' : 'Chiusi'}
+                      {orderState ? texts.order_state_open : texts.order_state_closed}
                     </Badge>
                   </p>
                 </div>
@@ -1532,29 +1541,29 @@ const Admin = () => {
                   variant={orderState ? 'danger' : 'success'}
                   onClick={handleToggleOrderState}
                 >
-                  {orderState ? 'Chiudi Ordini' : 'Apri Ordini'}
+                  {orderState ? texts.close_orders : texts.open_orders}
                 </Button>
               </div>
             </div>
 
-            <h4>Riepilogo Ordini</h4>
+            <h4>{texts.orders_summary}</h4>
             {orderSummary.users.length === 0 ? (
               <Alert variant="info">Nessun ordine presente.</Alert>
             ) : (
               <>
                 <div className="mb-3">
                   <Button variant="secondary" onClick={handleCopyOrdersToClipboard}>
-                    <FontAwesomeIcon icon={faClipboard} className="me-1" /> Copia riepilogo negli appunti
+                    <FontAwesomeIcon icon={faClipboard} className="me-1" /> {texts.copy_summary_clipboard}
                   </Button>
                 </div>
                 <Table striped bordered hover responsive>
                   <thead>
                     <tr>
-                      <th>Utente</th>
-                      <th>Ordini</th>
-                      <th>Totale</th>
-                      <th>Pagamento</th>
-                      <th>Azioni</th>
+                      <th>{texts.user}</th>
+                      <th>{texts.orders}</th>
+                      <th>{texts.total}</th>
+                      <th>{texts.payment}</th>
+                      <th>{texts.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1633,18 +1642,18 @@ const Admin = () => {
                               size="sm"
                               onClick={() => handleOpenPaymentModal(userSummary)}
                             >
-                              <FontAwesomeIcon icon={faMoneyBill} /> Registra
+                              <FontAwesomeIcon icon={faMoneyBill} /> {texts.register}
                             </Button>
                           )}
                         </td>
                         <td>
-                          <Button 
-                            variant="outline-warning" 
-                            size="sm" 
-                            onClick={() => handleCopyUserOrderToClipboard(userSummary)}
-                            className="mb-2 d-block"
-                          >
-                            <FontAwesomeIcon icon={faClipboard} /> Copia
+                                                        <Button 
+                                variant="outline-warning" 
+                                size="sm" 
+                                onClick={() => handleCopyUserOrderToClipboard(userSummary)}
+                                className="mb-2 d-block"
+                              >
+                                <FontAwesomeIcon icon={faClipboard} /> {texts.copy_to_clipboard}
                           </Button>
                         </td>
                       </tr>
@@ -1652,36 +1661,36 @@ const Admin = () => {
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colSpan="2" className="text-end"><strong>Totale Complessivo:</strong></td>
-                      <td><strong>€{parseFloat(orderSummary.grandTotal).toFixed(2)}</strong></td>
+                                        <td colSpan="2" className="text-end"><strong>{texts.grand_total}</strong></td>
+                  <td><strong>€{parseFloat(orderSummary.grandTotal).toFixed(2)}</strong></td>
                     </tr>
                   </tfoot>
                 </Table>
-                <Button variant="danger" onClick={handleDeleteAllChoices}>
-                  Elimina tutti gli ordini
-                </Button>
+                              <Button variant="danger" onClick={handleDeleteAllChoices}>
+                {texts.delete_all_orders}
+              </Button>
               </>
             )}
           </div>
         </Tab>
 
-        <Tab eventKey="menu" title="Menu">
+        <Tab eventKey="menu" title={texts.admin_menu}>
           <div className="admin-section">
-            <h3>Gestione Menu</h3>
+            <h3>{texts.admin_menu}</h3>
             <div className="mb-4">
               <Card.Header className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h5 className="mb-0">Gestione Menu</h5>
-                  <p className="text-muted mb-0">Data odierna: {formatDate(today)}</p>
+                  <h5 className="mb-0">{texts.admin_menu}</h5>
+                  <p className="text-muted mb-0">{texts.current_date || "Data odierna"}: {formatDate(today)}</p>
                 </div>
                 <div>
                   <Button variant="warning" className="me-2" onClick={handleResetMenu}>
                     <FontAwesomeIcon icon={faClipboard} className="me-2" />
-                    Azzera Menu
+                    {texts.reset_menu}
                   </Button>
                   <Button variant="primary" onClick={() => setShowAddMenuModal(true)}>
                     <FontAwesomeIcon icon={faPlus} className="me-2" />
-                    Aggiungi Opzione
+                    {texts.add_menu_item}
                   </Button>
                 </div>
               </Card.Header>
@@ -1692,44 +1701,44 @@ const Admin = () => {
               <div className="mb-4">
                 <Card>
                   <Card.Header>
-                    <h5 className="mb-0">Menu Esterno</h5>
+                    <h5 className="mb-0">{texts.external_menu_title}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex align-items-center justify-content-between mb-3">
                       <div>
-                        <h6 className="mb-0">Visibilità Menu Esterno</h6>
-                        <p className="text-muted mb-0">Mostra o nascondi il menu esterno agli utenti</p>
+                        <h6 className="mb-0">{texts.external_menu_visibility}</h6>
+                        <p className="text-muted mb-0">{texts.show_hide_external_menu}</p>
                       </div>
                       <Button 
                         variant={externalMenuEnabled ? "danger" : "success"}
                         onClick={() => handleToggleExternalMenu(!externalMenuEnabled)}
                       >
-                        {externalMenuEnabled ? "Nascondi agli utenti" : "Mostra agli utenti"}
+                        {externalMenuEnabled ? texts.hide_from_users : texts.show_to_users}
                       </Button>
                     </div>
                     
-                    <div className="mt-4">
+                      <div className="mt-4">
                       <Form.Group>
-                        <Form.Label>Link Menu Esterno</Form.Label>
+                        <Form.Label>{texts.external_menu_link_label}</Form.Label>
                         <div className="d-flex gap-2">
                           <Form.Control
                             type="url"
                             value={externalMenuLink}
                             onChange={(e) => setExternalMenuLink(e.target.value)}
-                            placeholder="Inserisci il link al menu esterno"
+                            placeholder={texts.enter_external_menu_link}
                           />
                           <Button 
                             variant="primary"
                             onClick={handleUpdateExternalMenuLink}
                           >
-                            Aggiorna Link
+                            {texts.update_link}
                           </Button>
                         </div>
                         <Form.Text className="text-muted">
-                          Il link verrà mostrato agli utenti solo se la visibilità è attiva
+                          {texts.link_visibility_note}
                         </Form.Text>
                       </Form.Group>
-                    </div>
+                      </div>
                   </Card.Body>
                 </Card>
               </div>
@@ -1740,42 +1749,42 @@ const Admin = () => {
               <div className="mb-4">
                 <Card>
                   <Card.Header>
-                    <h5 className="mb-0">Note Home</h5>
+                    <h5 className="mb-0">{texts.home_notes_title}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex align-items-center justify-content-between mb-3">
                       <div>
-                        <h6 className="mb-0">Abilita Note Home</h6>
-                        <p className="text-muted mb-0">Mostra note personalizzate nella home page</p>
+                        <h6 className="mb-0">{texts.enable_home_notes}</h6>
+                        <p className="text-muted mb-0">{texts.show_custom_notes_home}</p>
                       </div>
                       <Button 
                         variant={homeNotesEnabled ? "danger" : "success"}
                         onClick={() => handleToggleHomeNotes(!homeNotesEnabled)}
                       >
-                        {homeNotesEnabled ? "Disabilita Note" : "Abilita Note"}
+                        {homeNotesEnabled ? texts.disable_notes : texts.enable_notes}
                       </Button>
                     </div>
                     
                     {homeNotesEnabled && (
                       <div className="mt-4">
                         <Form.Group className="mb-3">
-                          <Form.Label>Note</Form.Label>
+                          <Form.Label>{texts.notes_label}</Form.Label>
                           <Form.Control
                             as="textarea"
                             rows={4}
                             value={homeNotes}
                             onChange={(e) => setHomeNotes(e.target.value)}
-                            placeholder="Inserisci le note da mostrare nella home"
+                            placeholder={texts.enter_notes_home}
                           />
                         </Form.Group>
                         <Button 
                           variant="primary"
                           onClick={handleUpdateHomeNotes}
                         >
-                          Aggiorna Note
+                          {texts.update_notes}
                         </Button>
                         <p className="text-muted mt-2 mb-0">
-                          Le note verranno mostrate nella home page sopra il menu
+                          {texts.notes_display_location}
                         </p>
                       </div>
                     )}
@@ -1789,20 +1798,20 @@ const Admin = () => {
               <div className="mb-4">
                 <Card>
                   <Card.Header>
-                    <h5 className="mb-0">Configurazione PayPal</h5>
+                    <h5 className="mb-0">{texts.paypal_config_title}</h5>
                   </Card.Header>
                   <Card.Body>
                     <Form.Group className="mb-3">
-                      <Form.Label>Username PayPal.me</Form.Label>
+                      <Form.Label>{texts.paypal_username_label}</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="Inserisci il tuo username PayPal.me"
+                        placeholder={texts.enter_paypal_username}
                         value={paypalEmail.value || ''}
                         onChange={(e) => setPaypalEmail({ ...paypalEmail, value: e.target.value })}
                       />
                       <Form.Check
                         type="switch"
-                        label="Mostra pulsante PayPal agli utenti"
+                        label={texts.show_paypal_button}
                         checked={paypalEmail.state}
                         onChange={(e) => setPaypalEmail({ ...paypalEmail, state: e.target.checked })}
                       />
@@ -1821,15 +1830,15 @@ const Admin = () => {
             {/* Sezione Configurazione Menu */}
             <Card>
               <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Configurazione Menu</h5>
+                <h5 className="mb-0">{texts.menu_configuration}</h5>
                 <div>
-                  <Button variant="warning" className="me-2" onClick={handleResetMenu}>
-                    <FontAwesomeIcon icon={faClipboard} className="me-2" />
-                    Azzera Menu
+                                      <Button variant="warning" className="me-2" onClick={handleResetMenu}>
+                      <FontAwesomeIcon icon={faClipboard} className="me-2" />
+                      {texts.reset_menu}
                   </Button>
-                  <Button variant="primary" onClick={() => setShowAddMenuModal(true)}>
-                    <FontAwesomeIcon icon={faPlus} className="me-2" />
-                    Aggiungi Opzione
+                                      <Button variant="primary" onClick={() => setShowAddMenuModal(true)}>
+                      <FontAwesomeIcon icon={faPlus} className="me-2" />
+                      {texts.add_option}
                   </Button>
                 </div>
               </Card.Header>
@@ -1845,11 +1854,11 @@ const Admin = () => {
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>Articolo</th>
-                        <th>Prezzo</th>
-                        <th>Default</th>
-                        <th>Data</th>
-                        <th>Azioni</th>
+                        <th>{texts.item}</th>
+                        <th>{texts.price}</th>
+                        <th>{texts.default}</th>
+                        <th>{texts.date}</th>
+                        <th>{texts.actions}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1873,14 +1882,14 @@ const Admin = () => {
                               className="me-2"
                               onClick={() => handleEditMenuItem(option)}
                             >
-                              Modifica
+                              {texts.edit}
                             </Button>
                             <Button
                               variant="danger"
                               size="sm"
                               onClick={() => handleDeleteMenuItem(option.id)}
                             >
-                              Elimina
+                              {texts.delete}
                             </Button>
                           </td>
                         </tr>
@@ -1897,31 +1906,31 @@ const Admin = () => {
           </div>
         </Tab>
 
-        <Tab eventKey="history" title="Storico Ordini">
+        <Tab eventKey="history" title={texts.order_history || "Storico Ordini"}>
           <div className="admin-section">
-            <h3>Storico Ordini</h3>
+            <h3>{texts.order_history || "Storico Ordini"}</h3>
             {renderOrderHistory()}
           </div>
         </Tab>
 
-        <Tab eventKey="admins" title="Amministratori">
+        <Tab eventKey="admins" title={texts.administrators || "Amministratori"}>
           <div className="admin-section">
-            <h3>Gestione Amministratori</h3>
+            <h3>{texts.admin_management || "Gestione Amministratori"}</h3>
             <div className="mb-4">
               <Button variant="primary" onClick={() => setShowAddAdminModal(true)}>
-                Aggiungi Nuovo Admin
+                {texts.add_admin}
               </Button>
             </div>
 
             {admins.length === 0 ? (
-              <Alert variant="info">Nessun amministratore disponibile.</Alert>
+              <Alert variant="info">{texts.no_admins || "Nessun amministratore disponibile."}</Alert>
             ) : (
               <Table striped bordered hover responsive>
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Nome</th>
-                    <th>Azioni</th>
+                    <th>{texts.name || "Nome"}</th>
+                    <th>{texts.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1936,7 +1945,7 @@ const Admin = () => {
                           onClick={() => handleDeleteAdmin(admin.id)}
                           disabled={admin.display_name === user.displayName} // Non permettere l'auto-eliminazione
                         >
-                          Elimina
+                          {texts.delete}
                         </Button>
                       </td>
                     </tr>
@@ -1947,17 +1956,17 @@ const Admin = () => {
           </div>
         </Tab>
 
-        <Tab eventKey="notifications" title="Notifiche">
+        <Tab eventKey="notifications" title={texts.notifications}>
           {configs.notifications_enabled.state ? (
             <div className="admin-section">
-              <h3>Gestione Notifiche</h3>
+              <h3>{texts.notifications_management || "Gestione Notifiche"}</h3>
               <div className="mb-4">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <div>
                     <p className="mb-0">
-                      Notifiche: 
+                      {texts.notifications}: 
                       <Badge bg={notificationsState ? 'success' : 'danger'} className="ms-2">
-                        {notificationsState ? 'Attive' : 'Disattivate'}
+                        {notificationsState ? texts.active || "Attive" : texts.disabled || "Disattivate"}
                       </Badge>
                     </p>
                   </div>
@@ -1965,27 +1974,27 @@ const Admin = () => {
                     variant={notificationsState ? 'danger' : 'success'}
                     onClick={handleToggleNotificationsState}
                   >
-                    {notificationsState ? 'Disattiva Notifiche' : 'Attiva Notifiche'}
+                    {notificationsState ? texts.disable_notifications || "Disattiva Notifiche" : texts.enable_notifications}
                   </Button>
                 </div>
 
                 <Card className="mb-3">
                   <Card.Body>
-                    <Card.Title>Invio Notifiche</Card.Title>
+                    <Card.Title>{texts.send_notifications || "Invio Notifiche"}</Card.Title>
                     <div className="d-flex gap-2 mt-3">
                       <Button
                         variant="success"
                         onClick={handleSendLunchNotification}
                         disabled={!notificationsState}
                       >
-                        Invia "Pranzo Arrivato"
+                        {texts.lunch_notification}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => setShowNotificationModal(true)}
                         disabled={!notificationsState}
                       >
-                        Invia Notifica Personalizzata
+                        {texts.custom_notification || "Invia Notifica Personalizzata"}
                       </Button>
                     </div>
                   </Card.Body>
@@ -1994,19 +2003,19 @@ const Admin = () => {
             </div>
           ) : (
             <Alert variant="info">
-              Il sistema di notifiche è attualmente disabilitato. Abilitalo nelle Impostazioni per utilizzare questa funzionalità.
+              {texts.notifications_disabled_message || "Il sistema di notifiche è attualmente disabilitato. Abilitalo nelle Impostazioni per utilizzare questa funzionalità."}
             </Alert>
           )}
         </Tab>
 
-        <Tab eventKey="stats" title="Statistiche">
+        <Tab eventKey="stats" title={texts.admin_stats}>
           <div className="admin-section">
-            <h3>Statistiche Ordini</h3>
+            <h3>{texts.order_statistics || "Statistiche Ordini"}</h3>
             
             {loadingStats ? (
               <div className="text-center my-3">
                 <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Caricamento...</span>
+                  <span className="visually-hidden">{texts.loading}</span>
                 </Spinner>
               </div>
             ) : statsData ? (
@@ -2017,9 +2026,9 @@ const Admin = () => {
                       <Card className="h-100 text-center">
                         <Card.Body>
                           <FontAwesomeIcon icon={faEuroSign} className="fs-2 text-primary mb-2" />
-                          <h5>Totale Incasso</h5>
+                          <h5>{texts.total_revenue || "Totale Incasso"}</h5>
                           <h3 className="text-primary">€{(statsData.totalRevenue || 0).toFixed(2)}</h3>
-                          <p className="text-muted mb-0">Media: €{(statsData.avgRevenue || 0).toFixed(2)}</p>
+                          <p className="text-muted mb-0">{texts.avg_revenue || "Media"}: €{(statsData.avgRevenue || 0).toFixed(2)}</p>
                         </Card.Body>
                       </Card>
                     </Col>
@@ -2037,9 +2046,9 @@ const Admin = () => {
                       <Card className="h-100 text-center">
                         <Card.Body>
                           <FontAwesomeIcon icon={faStar} className="fs-2 text-warning mb-2" />
-                          <h5>Totale Ordini</h5>
-                          <h3 className="text-warning">{statsData.totalOrders || 0}</h3>
-                          <p className="text-muted mb-0">Media: {(statsData.avgOrders || 0).toFixed(1)}</p>
+                                          <h5>{texts.total_orders}</h5>
+                <h3 className="text-warning">{statsData.totalOrders || 0}</h3>
+                <p className="text-muted mb-0">{texts.avg_revenue}: {(statsData.avgOrders || 0).toFixed(1)}</p>
                         </Card.Body>
                       </Card>
                     </Col>
@@ -2047,9 +2056,9 @@ const Admin = () => {
                       <Card className="h-100 text-center">
                         <Card.Body>
                           <FontAwesomeIcon icon={faBox} className="fs-2 text-info mb-2" />
-                          <h5>Ordini per Utente</h5>
-                          <h3 className="text-info">{(statsData.totalOrders / statsData.totalUsers || 0).toFixed(1)}</h3>
-                          <p className="text-muted mb-0">Media per utente</p>
+                                          <h5>{texts.orders_per_user}</h5>
+                <h3 className="text-info">{(statsData.totalOrders / statsData.totalUsers || 0).toFixed(1)}</h3>
+                <p className="text-muted mb-0">{texts.avg_revenue}</p>
                         </Card.Body>
                       </Card>
                     </Col>
@@ -2058,35 +2067,35 @@ const Admin = () => {
                   <Row className="mt-4">
                     <Col md={6} className="mb-4">
                       <Card>
-                        <Card.Header>
-                          <h5 className="mb-0">Record Giornalieri</h5>
-                        </Card.Header>
+                                      <Card.Header>
+                <h5 className="mb-0">{texts.daily_records}</h5>
+              </Card.Header>
                         <Card.Body>
                           <div className="mb-3">
-                            <h6>Più Ordini</h6>
+                            <h6>{texts.most_orders}</h6>
                             <p className="mb-1">
-                              <strong>Data:</strong> {new Date(statsData.maxOrdersDay?.date).toLocaleDateString('it-IT')}
+                              <strong>{texts.date_label}</strong> {new Date(statsData.maxOrdersDay?.date).toLocaleDateString('it-IT')}
                             </p>
                             <p className="mb-0">
-                              <strong>Numero:</strong> {statsData.maxOrdersDay?.numOrders || 0}
+                              <strong>{texts.number}</strong> {statsData.maxOrdersDay?.numOrders || 0}
                             </p>
                           </div>
                           <div className="mb-3">
-                            <h6>Più Utenti</h6>
+                            <h6>{texts.most_users}</h6>
                             <p className="mb-1">
-                              <strong>Data:</strong> {new Date(statsData.maxUsersDay?.date).toLocaleDateString('it-IT')}
+                              <strong>{texts.date_label}</strong> {new Date(statsData.maxUsersDay?.date).toLocaleDateString('it-IT')}
                             </p>
                             <p className="mb-0">
-                              <strong>Numero:</strong> {statsData.maxUsersDay?.numUsers || 0}
+                              <strong>{texts.number}</strong> {statsData.maxUsersDay?.numUsers || 0}
                             </p>
                           </div>
                           <div>
-                            <h6>Maggior Incasso</h6>
+                            <h6>{texts.highest_revenue}</h6>
                             <p className="mb-1">
-                              <strong>Data:</strong> {new Date(statsData.maxRevenueDay?.date).toLocaleDateString('it-IT')}
+                              <strong>{texts.date_label}</strong> {new Date(statsData.maxRevenueDay?.date).toLocaleDateString('it-IT')}
                             </p>
                             <p className="mb-0">
-                              <strong>Importo:</strong> €{parseFloat(statsData.maxRevenueDay?.totalAmount || 0).toFixed(2)}
+                              <strong>{texts.amount}</strong> €{parseFloat(statsData.maxRevenueDay?.totalAmount || 0).toFixed(2)}
                             </p>
                           </div>
                         </Card.Body>
@@ -2094,17 +2103,17 @@ const Admin = () => {
                     </Col>
                     <Col md={6} className="mb-4">
                       <Card>
-                        <Card.Header>
-                          <h5 className="mb-0">Articoli più Ordinati</h5>
-                        </Card.Header>
+                                      <Card.Header>
+                <h5 className="mb-0">{texts.most_ordered_items}</h5>
+              </Card.Header>
                         <Card.Body>
                           <Table striped bordered hover size="sm">
                             <thead>
                               <tr>
-                                <th>Articolo</th>
-                                <th>Quantità</th>
-                                <th>Ordini</th>
-                                <th>Incasso</th>
+                                <th>{texts.item}</th>
+                                <th>{texts.quantity}</th>
+                                <th>{texts.order_count}</th>
+                                <th>{texts.revenue}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -2126,31 +2135,31 @@ const Admin = () => {
                 <Col lg={4}>
                   <Card className="mb-4">
                     <Card.Header>
-                      <h5 className="mb-0">Statistiche Avanzate</h5>
+                      <h5 className="mb-0">{texts.advanced_stats}</h5>
                     </Card.Header>
                     <Card.Body>
                       <div className="mb-3">
-                        <h6>Valore Medio Ordine</h6>
+                        <h6>{texts.avg_order_value}</h6>
                         <p className="mb-0">
                           €{(statsData.totalRevenue / statsData.totalOrders || 0).toFixed(2)}
                         </p>
                       </div>
                       <div className="mb-3">
-                        <h6>Spesa Media per Utente</h6>
+                        <h6>{texts.avg_spend_per_user}</h6>
                         <p className="mb-0">
                           €{(statsData.totalRevenue / statsData.totalUsers || 0).toFixed(2)}
                         </p>
                       </div>
                       <div className="mb-3">
-                        <h6>Articoli per Ordine</h6>
+                        <h6>{texts.items_per_order}</h6>
                         <p className="mb-0">
                           {(statsData.totalOrders / statsData.totalUsers || 0).toFixed(1)}
                         </p>
                       </div>
                       <div>
-                        <h6>Periodo Analizzato</h6>
+                        <h6>{texts.period_analyzed}</h6>
                         <p className="mb-0">
-                          {orderHistory.length} giorni
+                          {orderHistory.length} {texts.days_count}
                         </p>
                       </div>
                     </Card.Body>
@@ -2158,13 +2167,13 @@ const Admin = () => {
 
                   <Card className="mb-4">
                     <Card.Header>
-                      <h5 className="mb-0">Azioni Rapide</h5>
+                      <h5 className="mb-0">{texts.quick_actions}</h5>
                     </Card.Header>
                     <Card.Body>
                       <div className="d-grid gap-2">
                         <Button variant="outline-info" onClick={handleExportHistoryToCSV}>
                           <FontAwesomeIcon icon={faPrint} className="me-2" />
-                          Esporta CSV
+                          {texts.export_csv}
                         </Button>
                       </div>
                     </Card.Body>
@@ -2172,11 +2181,11 @@ const Admin = () => {
 
                   <Card>
                     <Card.Header>
-                      <h5 className="mb-0">Tendenze</h5>
+                      <h5 className="mb-0">{texts.trends}</h5>
                     </Card.Header>
                     <Card.Body>
                       <div className="mb-3">
-                        <h6>Andamento Giornaliero</h6>
+                        <h6>{texts.daily_trend}</h6>
                         <p className="mb-0">
                           {orderHistory.length > 1 ? (
                             <span className={statsData.totalRevenue / orderHistory.length > statsData.avgRevenue ? "text-success" : "text-danger"}>
@@ -2187,7 +2196,7 @@ const Admin = () => {
                         </p>
                       </div>
                       <div className="mb-3">
-                        <h6>Partecipazione Utenti</h6>
+                        <h6>{texts.user_participation}</h6>
                         <p className="mb-0">
                           {orderHistory.length > 1 ? (
                             <span className={statsData.totalUsers / orderHistory.length > statsData.avgUsers ? "text-success" : "text-danger"}>
@@ -2198,7 +2207,7 @@ const Admin = () => {
                         </p>
                       </div>
                       <div>
-                        <h6>Efficienza Ordini</h6>
+                        <h6>{texts.order_efficiency}</h6>
                         <p className="mb-0">
                           {orderHistory.length > 1 ? (
                             <span className={statsData.totalOrders / orderHistory.length > statsData.avgOrders ? "text-success" : "text-danger"}>
@@ -2214,27 +2223,51 @@ const Admin = () => {
               </Row>
             ) : (
               <Alert variant="info">
-                Non ci sono dati sufficienti per generare statistiche.
+                {texts.insufficient_data || "Non ci sono dati sufficienti per generare statistiche."}
               </Alert>
             )}
           </div>
         </Tab>
 
-        <Tab eventKey="settings" title="Impostazioni">
+        <Tab eventKey="settings" title={texts.admin_settings}>
           <div className="admin-section">
-            <h3>Configurazione Funzionalità</h3>
+            <h3>{texts.feature_config}</h3>
             
             <Row>
               <Col md={6}>
                 <Card className="mb-4">
                   <Card.Header>
-                    <h5 className="mb-0">Pagamenti</h5>
+                    <h5 className="mb-0">{texts.language}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <div>
-                        <h6 className="mb-0">Pagamenti PayPal</h6>
-                        <p className="text-muted mb-0">Attiva o disattiva completamente i pagamenti tramite PayPal.me</p>
+                        <h6 className="mb-0">{texts.select_language}</h6>
+                      </div>
+                    </div>
+                    <Form>
+                      <Form.Group className="mb-3">
+                        <Form.Select 
+                          value={currentLanguage} 
+                          onChange={(e) => handleLanguageChange(e.target.value)}
+                        >
+                          <option value="en">{texts.english}</option>
+                          <option value="it">{texts.italian}</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Form>
+                  </Card.Body>
+                </Card>
+
+                <Card className="mb-4">
+                  <Card.Header>
+                    <h5 className="mb-0">{texts.payment_methods}</h5>
+                  </Card.Header>
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h6 className="mb-0">{texts.paypal}</h6>
+                        <p className="text-muted mb-0">{texts.paypal_description}</p>
                       </div>
                       <Form.Check
                         type="switch"
@@ -2243,20 +2276,20 @@ const Admin = () => {
                       />
                     </div>
                     <p className="text-muted small mt-2">
-                      Se disattivato qui, i pagamenti PayPal non saranno disponibili indipendentemente dalle altre configurazioni
+                      {texts.paypal_note}
                     </p>
                   </Card.Body>
                 </Card>
 
                 <Card className="mb-4">
                   <Card.Header>
-                    <h5 className="mb-0">Note Home</h5>
+                    <h5 className="mb-0">{texts.home_notes}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <div>
-                        <h6 className="mb-0">Note nella Home</h6>
-                        <p className="text-muted mb-0">Abilita la visualizzazione delle note nella home page</p>
+                        <h6 className="mb-0">{texts.home_notes_enabled}</h6>
+                        <p className="text-muted mb-0">{texts.home_notes_description}</p>
                       </div>
                       <Form.Check
                         type="switch"
@@ -2265,7 +2298,7 @@ const Admin = () => {
                       />
                     </div>
                     <p className="text-muted small mt-2">
-                      Se disattivato qui, le note non saranno visibili nella home page indipendentemente dalle altre configurazioni
+                      {texts.home_notes_note}
                     </p>
                   </Card.Body>
                 </Card>
@@ -2274,13 +2307,13 @@ const Admin = () => {
               <Col md={6}>
                 <Card className="mb-4">
                   <Card.Header>
-                    <h5 className="mb-0">Menu Esterno</h5>
+                    <h5 className="mb-0">{texts.external_menu}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <div>
-                        <h6 className="mb-0">Funzionalità Menu Esterno</h6>
-                        <p className="text-muted mb-0">Attiva o disattiva completamente la funzionalità menu esterno</p>
+                        <h6 className="mb-0">{texts.external_menu_enabled}</h6>
+                        <p className="text-muted mb-0">{texts.external_menu_description}</p>
                       </div>
                       <Form.Check
                         type="switch"
@@ -2289,20 +2322,20 @@ const Admin = () => {
                       />
                     </div>
                     <p className="text-muted small mt-2">
-                      Se disattivato qui, il menu esterno non sarà visibile agli utenti indipendentemente dalle configurazioni nella scheda "Menu"
+                      {texts.external_menu_note}
                     </p>
                   </Card.Body>
                 </Card>
 
                 <Card className="mb-4">
                   <Card.Header>
-                    <h5 className="mb-0">Notifiche</h5>
+                    <h5 className="mb-0">{texts.notifications}</h5>
                   </Card.Header>
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <div>
-                        <h6 className="mb-0">Sistema di Notifiche</h6>
-                        <p className="text-muted mb-0">Abilita l'invio di notifiche agli utenti</p>
+                        <h6 className="mb-0">{texts.notifications_enabled}</h6>
+                        <p className="text-muted mb-0">{texts.notifications_description}</p>
                       </div>
                       <Form.Check
                         type="switch"
@@ -2311,7 +2344,7 @@ const Admin = () => {
                       />
                     </div>
                     <p className="text-muted small mt-2">
-                      Se disattivato qui, non sarà possibile inviare notifiche agli utenti indipendentemente dalle altre configurazioni
+                      {texts.notifications_note}
                     </p>
                   </Card.Body>
                 </Card>
@@ -2324,7 +2357,7 @@ const Admin = () => {
       {/* Modal per aggiungere opzione menu */}
       <Modal show={showAddMenuModal} onHide={() => setShowAddMenuModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Aggiungi Opzione Menu</Modal.Title>
+          <Modal.Title>{texts.add_menu_option}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -2501,23 +2534,23 @@ const Admin = () => {
       {/* Modal per modificare la quantità di un ordine */}
       <Modal show={showEditOrderModal} onHide={() => setShowEditOrderModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Modifica Ordine</Modal.Title>
+          <Modal.Title>{texts.edit_order}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {editingChoice && (
             <div>
               <p>
-                <strong>Utente:</strong> {editingUserName}
+                <strong>{texts.user}:</strong> {editingUserName}
               </p>
               <p>
-                <strong>Articolo:</strong> {editingChoice.item}
+                <strong>{texts.item}:</strong> {editingChoice.item}
               </p>
               <p>
-                <strong>Prezzo unitario:</strong> €{parseFloat(editingChoice.price).toFixed(2)}
+                <strong>{texts.unit_price}:</strong> €{parseFloat(editingChoice.price).toFixed(2)}
               </p>
               
               <Form.Group className="mb-3" controlId="formQuantity">
-                <Form.Label>Quantità</Form.Label>
+                <Form.Label>{texts.quantity}</Form.Label>
                 <Form.Control
                   type="number"
                   min="1"
@@ -2529,23 +2562,23 @@ const Admin = () => {
               </Form.Group>
               
               <p>
-                <strong>Totale:</strong> €{parseFloat(editingChoice.price * editingQuantity).toFixed(2)}
+                <strong>{texts.total}:</strong> €{parseFloat(editingChoice.price * editingQuantity).toFixed(2)}
               </p>
             </div>
           )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowEditOrderModal(false)}>
-            Annulla
+            {texts.cancel}
           </Button>
           <Button variant="danger" onClick={() => {
             handleAdminDeleteChoice(editingChoice.id);
             setShowEditOrderModal(false);
           }}>
-            Elimina
+            {texts.delete}
           </Button>
           <Button variant="primary" onClick={handleSaveEditOrder}>
-            Salva Modifiche
+            {texts.save}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -2553,20 +2586,20 @@ const Admin = () => {
       {/* Modal per gestire i pagamenti */}
       <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Registra Pagamento</Modal.Title>
+          <Modal.Title>{texts.register_payment}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
             <div>
               <p>
-                <strong>Utente:</strong> {selectedUser.display_name}
+                <strong>{texts.user}:</strong> {selectedUser.display_name}
               </p>
               <p>
-                <strong>Totale da pagare:</strong> €{parseFloat(selectedUser.total).toFixed(2)}
+                <strong>{texts.total_to_pay}</strong> €{parseFloat(selectedUser.total).toFixed(2)}
               </p>
               
               <Form.Group className="mb-3" controlId="formAmountPaid">
-                <Form.Label>Importo ricevuto</Form.Label>
+                <Form.Label>{texts.rest_received}</Form.Label>
                 <Form.Control
                   type="number"
                   step="0.01"
@@ -2581,16 +2614,16 @@ const Admin = () => {
               {parseFloat(amountPaid) > 0 && (
                 <div className="mb-3">
                   <p>
-                    <strong>Resto da dare:</strong> €
+                    <strong>{texts.change_to_give}:</strong> €
                     {Math.max(0, parseFloat(amountPaid) - selectedUser.total).toFixed(2)}
                   </p>
 
                   {Math.max(0, parseFloat(amountPaid) - selectedUser.total) > 0 && (
                     <div className="mb-3">
-                      <p><strong>Gestione del resto:</strong></p>
+                      <p><strong>{texts.partial_change_given}:</strong></p>
                       
                       <Form.Group className="mb-2" controlId="formPartialChange">
-                        <Form.Label>Resto già dato (parziale)</Form.Label>
+                        <Form.Label>{texts.partial_change_given}</Form.Label>
                         <Form.Control
                           type="number"
                           step="0.01"
@@ -2612,7 +2645,7 @@ const Admin = () => {
                       </Form.Group>
                       
                       <p>
-                        <strong>Resto ancora da dare:</strong> €
+                        <strong>{texts.change_still_to_give}</strong> €
                         {(Math.max(0, parseFloat(amountPaid) - selectedUser.total) - (partialChangeGiven[selectedUser.username] || 0)).toFixed(2)}
                       </p>
                     </div>
@@ -2621,7 +2654,7 @@ const Admin = () => {
                   <Form.Check
                     type="checkbox"
                     id="payment-complete"
-                    label="Pagamento completato (resto già dato interamente)"
+                    label={texts.payment_complete}
                     checked={paymentComplete[selectedUser.username] || false}
                     onChange={(e) => {
                       setPaymentComplete(prev => ({
@@ -2645,14 +2678,14 @@ const Admin = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>
-            Annulla
+            {texts.cancel}
           </Button>
           <Button 
             variant="primary" 
             onClick={handleSavePayment}
             disabled={!amountPaid || parseFloat(amountPaid) <= 0}
           >
-            Registra Pagamento
+            {texts.register_payment}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -2660,12 +2693,12 @@ const Admin = () => {
       {/* Modal per modificare opzione menu */}
       <Modal show={showEditMenuModal} onHide={() => setShowEditMenuModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Modifica Opzione Menu</Modal.Title>
+          <Modal.Title>{texts.edit_menu_item}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3" controlId="formEditMenuItem">
-              <Form.Label>Nome Articolo</Form.Label>
+              <Form.Label>{texts.item}</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Inserisci il nome dell'articolo"
@@ -2676,7 +2709,7 @@ const Admin = () => {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formEditMenuPrice">
-              <Form.Label>Prezzo</Form.Label>
+              <Form.Label>{texts.price}</Form.Label>
               <Form.Control
                 type="number"
                 step="0.01"
@@ -2690,7 +2723,7 @@ const Admin = () => {
             <Form.Group className="mb-3" controlId="formEditMenuIsDefault">
               <Form.Check
                 type="checkbox"
-                label="Predefinito"
+                label={texts.default}
                 checked={editedMenuIsDefault}
                 onChange={(e) => setEditedMenuIsDefault(e.target.checked)}
               />
@@ -2699,10 +2732,10 @@ const Admin = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowEditMenuModal(false)}>
-            Annulla
+            {texts.cancel}
           </Button>
           <Button variant="primary" onClick={handleSaveEditMenuItem}>
-            Salva Modifiche
+            {texts.save}
           </Button>
         </Modal.Footer>
       </Modal>

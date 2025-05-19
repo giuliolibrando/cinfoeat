@@ -22,6 +22,7 @@ const UserChoice = sequelize.define('UserChoice', {
     references: {
       model: MenuOption,
       key: 'id',
+      onDelete: 'CASCADE',
     },
   },
   quantity: {
