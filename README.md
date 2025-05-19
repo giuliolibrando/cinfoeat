@@ -37,7 +37,7 @@ CinfoEat is a web application for managing and reserving meals at the Office and
 - PayPal configuration management
 
 ### Integrations and Customizations
-
+- Multilanguage (English, Italian)
 - External menu support via links
 - User-visible notes system in home page
 - Push notification customization
@@ -119,4 +119,3 @@ The following environment variables must be configured in the `.env` file:
 
 ## TODO:
 - [ ] Complete push notifications implementation
-- [ ] Add multilanguage support (only Italian right now)
