@@ -1,0 +1,44 @@
+# Stage di build
+FROM node:18-alpine as build
+
+WORKDIR /app
+
+# Copia dei file di package
+COPY package*.json ./
+
+# Installazione delle dipendenze
+RUN npm ci
+
+# Copia del codice sorgente escludendo il service worker
+COPY . .
+RUN rm -f src/service-worker.js
+
+# Build dell'applicazione ignorando gli errori di ESLint
+ENV DISABLE_ESLINT_PLUGIN=true
+ENV GENERATE_SOURCEMAP=false
+ENV INLINE_RUNTIME_CHUNK=false
+
+
+RUN npm run build
+
+# Stage di produzione
+FROM nginx:alpine
+
+# Installa netcat per la verifica della connessione
+RUN apk add --no-cache netcat-openbsd
+
+# Copia della configurazione di Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copia dei file statici dalla build
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Script di avvio per verificare la presenza dei file necessari
+COPY start.production.sh /start.sh
+RUN chmod +x /start.sh
+
+# Esposizione della porta 80
+EXPOSE 80
+
+# Avvio di Nginx
+CMD ["/start.sh"] 

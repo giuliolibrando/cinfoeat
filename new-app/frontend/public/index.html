@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="CinfoEat - Sistema di gestione ordini pranzo"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <!-- Icone Bootstrap inline per evitare problemi con CSP -->
+    <style>
+      @font-face {
+        font-display: block;
+        font-family: "bootstrap-icons";
+        src: url("data:font/woff2;base64,d09GMgABAAAAAAZoAA0AAAAADmwAAAYTAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACCahEICpwUmw4LFgABNgIkAxgEIAWFCAeBMRusCxGjoSPT4dsMEo/HHucZ4plrHKLonX6P2Nq43u1FQ75QUCzfxJgfsBEqF6rJ7MzsXgGJ0qjVnUhUpWKpStVVTbXsRtW//Tb+FDBwBNTXtNYTr6Y5TvmBQPCG93gP8P//P9P/vefsCiTbO1LT1GxC04zQ/ZdJEok0NCYSEcKDEFFCInTh3+/3ZvkgYzRRi10Xu2sPiGMOOAH3/38zUmcapDhQPDIpG0HnYaAr0PvJrr1yZM0VWfPIaH81Qd0g1cWqK1vLVbe9zvbqrqzZtbAz57bOXZwHwkBZ5jMWqICK1zR8L3fh+8/XX+h8GvDp2pcOPjVfev+0/unz0/9n1M+xrLazqVvRXvKGgBQ0kLQACMAjIAsAUwCZB7AASCEEOOYBkgwyCT3+f//HE2bxKKbVqsbKnQAAEQB/A2wAXAEAfBl4ZQA+AZAB+g3wWUhKBID/1fOXx+Wv6X0GAH8nQED8RwEHJBC/QojrUUJQb3NU9zDIHrXwsFgsIhRCECKI3fVhVMHvfhZpkGbpHe8B4nNCiF1oWo1bj5YfP0nkLZY0HK5bW6HA4rhcUHs2GrSS7pLTg4FUJcklE93RNZC9kc01fOygV7q8S35yH3z2HOJVr7qiXXJx56RzXJO26DdbcNkMt9QdcMVy+Xedbx14EK945eJVK5F7LtdNB3NG2Tad49oY3SZ7P9rUCE2zrNZzQgTGLTbXnVL0jjQo17NrKQAUv90T/eFoT4w6T6p2X33jRETbMgWZGFcfPu5S9oZwjAmiWDdnGC87vjfcK0BEJZp1rpfSp/TrIqPYXOsIRYQWlTqf0iYZUW4Rj2WzPkDg91uTDWcJ2jLJZ0IH3t0b5LG0Lbr0kkwp3gGdRKQ6GdOx4dCB9/YsKEjXrL1UGsdYsVyGGv2/kDanF5PfUyMHVAZJBwZJFkFzh8PD6/d8uv8nZvOdgbXIu6u9dxmHk72LsU8ZbjmPrTp1a/U1yyPBBHI2ZvG0gfMGz2XXdLsqj9tUXJOJzZ3N8sKcU3E6U5DFzSUipZm0lp5UVXWvKlUxV3eiMNecqNR9+6xp6ycR8atcRb8++43LV9o/H//05Jc8lFGNatZfWePDNY7Pu9fQvPk9yqIV/V+Ovf7Jm4PrkNZDLUcZh5NFJcFI8I6r/+EbIoH5kC+wvDe7I2+/+dDvP/nw+3f87sPXf/zKtwNe/nrVgLe/1d5n3LnhR2VYe7OJc5cU5aWIH5/jnnvuvUfeBM+bOTzm5syhI+fOOLDgbXvRJV8fBn32w/d6nv3T8bh9Y8AXP3xtA179duLMnRsiRuWHiZj5Uc17QR9/+G2P8/90OPI78lLFV/+Ub3jm5yUzcXpORz6Pc+pSnG22Dx5YZH3iiRV5E4Jnz0p1xW3N6Z1jz/UVXvRl34CXfj158vYVNe/0e+KDN7qOSi23YD6B+f7igvANNYmRhRFcMX9KUUHKBvbimTM9Q09OKy/jDNz2yJHCyJe+7nvsx5MnbltZ9aLfsR99QBvLZFNxbp1J0Wj4tZnVkMg56ZMnO9bJDNNpGUY7KUGM7q6YAp0lXUNXiXM7J7jKFcpEeUyVZnQPkfVICg2Tz+6RLGbqTF5WxVlZzJUFmaNVDVrKJHjsrIpxUjBLwFLFw1Q4SwnIIhQhwlwZVTUd0Cj1NzK+RKBTCcYzFQA=") format("woff2"),
+            url("data:font/woff;base64,d09GRgABAAAAAAhoAA0AAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAAITAAAABoAAAAcifG2GUdERUYAAAgsAAAAHAAAAB4AJwAZT1MvMgAAAaAAAABBAAAAVlblWIpjbWFwAAACAAAAAKAAAAFCzHOQ32dhc3AAAAgkAAAACAAAAAj//wADZ2x5ZgAAArwAAANRAAAEcEKMGoBoZWFkAAABMAAAADAAAAA2FYq6FWhoZWEAAAFgAAAAHQAAACQIVwQaaG10eAAAAeQAAAA8AAAATBQyAmpob2NhAAACnAAAACYAAAAmB24DUm1hcHAAAAGEAAAAGQAAAB4BGQLDdG5kaQAAA/gAAABIAAAAgupHoaFsb2NhAAAFAAAAACwAAAAsFhwWJG1ldGAAANMAAAAWAAAAHgAeAJZwYXNwAAAIHAAAAAgAAAAIAAAAEGdseWYAAAXsAAAC5QAABHTwUrXdaGVhZAAAAWwAAAAtAAAANhVbxatoaGVhAAABoAAAABsAAAAkCEIENGhtdHgAAAIMAAAAIAAAACAbOAClbG9jYQAABZQAAAAYAAAAGAQnAWJtYXhwAAABvAAAACAAAAAgAS4BTG5hbWUAAAjMAAAAOQAAAFI/aQZ0cG9zdAAACQgAAAAgAAAAME7sBPl4nGNgZGBgAGLDjZK68fw2Xxm4WRhA4GZTw2wE/f8ACytzL5DLwcAEEgUAJIkKHwB4nGNgZGBgbvjfwBDDyszA8P8/KzMDUAQFiAEAft8GAAB4nGNgZGBgEGIWYGBgYAHCv/+BZIagEAUgzQokAAB4nGNgZrFgnMDAysDA1Ml0hoGBoR9CM75mMGLkAIoysDIzYAUBaa4pDA4vGF/UM9f8b2BgYJZiEFUA6cwKcAAOQwmVAAB4nGNgYGBmgGAZBkYGEIgB8hjBfBYGByDNw8DBwARkezGo8Zzj+cTz/wODCi89LzMvoypj2f//YPEXjK+BqgcCRjYGOBcDIxPqWEYnBgYWXGYDAMUqDKkAAAAAAAAAAAACPALWAvYDkgP8BCIEQAR+BOIFPgVkAAB4nGNgZGBg4GHoYWBnAAEmIOYCQgaG/2A+AwASeAGEAHicXZE9TsNAEIWf84dIQEhISHQrZVdJFPu3IhUFUrtFsrVjO5FsZ7FnFFo6jsABOABHQFyAIiVn4AAUnsSLECCt9c2bN+PZWQOo4gkO0ueGWzsFVDC07A5O0LPsYoIry12kl5a7aGBouYcGbiz3cc9wdLCHJ8w9JQyRWcUr7yw7OFOvlrtI9Sy7eNYTy12o75a7+NCfll3pL8t9XLoXVlGzYqdm0tHJVm0jbVcGKpK5P1Jhbha+SUc6jGc61pGp+36oQ5XKzC9VFiajMF6mYTJX+V4sMx3rRMc7nsTiUjKXfWQsE7uW5lBPlaFq6yivFVNXf/1y8vr1J/9xVkHHnM9JIPCN2OMXMUKIGSJmZDl6Zhsj6+YVF5ihAMOcQ/HfI8s+DrjoNlzxmjHndEGGMRtnFlNSvnPF2LKT0pCROjAWsVLFRF1DsWaVq8W59mrOmjL9BaXwYoN4nLVVbWwb1R1+3vN9ORFL53Ns5w5xEsc+28eHz7GdOLE/UnXEclqSZvWWJp2aLmuZtOxr8qV0/ViDVrYBEmorRmGbYAikraDYukxFQvtRYGPJBiMqQoWxTDQ/KpD4sU0g0V9Tat59th3oDz72e+8577333fd5n/fl4UIQeDSG7kNvIQk5yINI6UDqIFIlpIRIVUAqjVQppBogDdOD/xWvvMJ9LnwO4+c03pNvIqTO1VYgHoF/1SDCokXK1UBKA8SxQBpIGjcYRwLRYRTShjsQHgF5Lzg+aqLEQOmtDe6tqckxcZB3M45k3JiMJbh43q7YWcWum9qAJPG8pGW0VJFLTM5WHFN28ZNPZN7UWrpKIY9bJZY7gGVWLp82VBLD4YnpjMoIOdcvLCDlL2uzkbAmTuRlzZBnxmvRU3aP8LJ63kguVHXTyktarxFWrVxOIh5tOsrGZYEVJFbLqaoixBP2yU6f3JlQwh5LkOMa8XCRRDj/tEoFnlL0/NysuTB5xOvrhMQXWRQHZRzO8gKWgmYi6gwjsLwgKLqkLZjxhXcX4LGo0+1RlUMb6e5ufOd7wzVZJKQAITXQcnshFoV12z4nQrucfM+gTxhuIJxCJ81J4ksAKQXsVXy69+y+JzUDPz88dn60lsF53D82On5O+Y7Hg79JhHc8JRu4tlh/5nsfvnvgQf2O9sCl1sn3Xx2Yne6+h79YPzdTI59ckM2dXvnZXv/JL2e07u6hLYM4K1kXZCbGhKwIx1SZXQtEQvd6a72eTqEb90yXVVaqZZWRqGfLltHr6YVgUG0r0uiR0V2lEp7DWwSoVjUU2K0r8w/xPLMdUVmVcOH6c0N4PJrCO64HjQzJC36XB30LtmkNBIHzjO4EbKE7QQN/6SJlItB/kAwhuJHbNzfW8i7e0XdH+7dvZxPD8tBh9/dkI4kGYGJ6vl49+NLeZ/s5XM1U8EeXNrfvTlY87x3qO+8b45W8rBzqq7GCnogN77r5eIpVzRnzBfnDhFAf1LWzRQ/5fgd6EYfAQC0/hQPP54a6I6qJiwVTnz/0oK2FbqzRwYxEX5JTGV0Ydx38oefjH1npnR7vtq1HcUeHGWZxJHpmqPvK6NnPTFsKlK5bPCEbKCOUAlkiAXVrIEAGSKFNCMZpUaBKy4KV83BGXC2ZhtFT4gVjMW0AhA4wnAaJJ3gUy2mK7MhZbkzVjHOCYV0N+zJBpKyiXIHVHARQbhpfpZkihBP2xYQv21vIxMmD3gDnc1uBQLHmLWDVh2cw9mW6E/5I0gO7B9xEZpEiFlNJLWOmbSvOiCgj2FYu5Lb603bvKXfK41HcGU8G8xYnmJwQilp2Np9JMhyB1e1DqQPRDNq3mKcGYllwFwuTFWVUljknAWsMsUjd9gRCBZeKWRclXQyFZ8qhqfXo5kAxEHD0qK2vfQFwjUJVb4CyroHnFwkTPLYTKdNQdrlXeZXLeqEsplpuOX5Zt9w5JxxCpBHQYLKk6VTXRmLpnAEPPQyW09TYVTbgtDEFE+gu9/YoQOK9ewYKRFGWKmspUZJKYDqzuTkHUzQOvzB1z2Ax5mLbUo0IkiMRXqKDFv+XSC/r4XlwxRMORyIcxxXLXU4wxJMIiE9ZmTWg3/iNE3bOvs0lEuY6V3NfuhqHlp9AYM3yUwJsWFNZAPHrqB1uC9wEyUDDgTvDQVZMeDPa2v8At1Vr2XicY2BkYGAA4vL3h/Ti+W2+MnAzXwAKEG663F6HoP+/Y2VmzgVyORgYQCIAKxQK+gB4nGNgZGBgbvjfwBDDyszA8P8dKzMDUMQFCAIAdNMEcHicY2AAAvYCWIAAAAAAAR4AnHicY2BkYGBgZjADYhBgAMKMIJKRCzBfAALAABEAAAAAeJyFkMFKAlEQhv9RR+11kCKKIlIUEZGVNCOWY0p30j7rnbwoPvcMxHPoIYqgfYQeosfoLbqB/9xRhEIH5v5zzvxz54xlAGjgCR5O3wZ7RQ/XzL5w1uyFe7jDh3Cf9afwAN/4Eh7iEz9+0fZO7vR0D28r99Dn9OiG+btwDSN8CfeYfwsPUMG3cIX5d+EhZl5pLZRzXCrtnVOZmrhtlDTkI5M3Wl2MnR3Nj+LSFtL43DndhXRdGTTTxVJYIxfiJNAjFHmaWKW0/JNNc11cG3mpM9/PxJNTl+r/LXXW28H07bG7zXvtfHFi89KqxAjqIHWmU6e1jlVqzCFqyZNIbVPG2L3RQVyYVBYbk43d5rrIkqVqsI3+qsC5LxIp5QYdOEzwX/9nGOOK+wARBmzFGBJrVkGS0RYy38+4NpxqJMhhEVKxRLhL+WoEnltXshZE1LdoUqcg4l1+Mz3WotvO6Iv0fSXP+S6qXz0/r3IYQAAAeJxjYGYAg/9+DOUMmIAFACk+Ae54nGP4AgncDQwMnAEq9Lc5DY8aaJ6pMMPzlsaqBU+bGurLk+saqi6wX9bQrJnFZM6sycqQmBGTxw7CDBqsbPnsjNlsDOkZxYwMDMx8bGx5fEysZcXFpUWlDFaT2djyG/V11aOT8osS9ZKz8/UyK/XK8jPzMvVy8rMYlGoaav8DAZsGJxAaAJiNIZccvgZGRiMG9rrGpjqGJl98LQ0gOJCXV1BQQAXUlJoXn59aAlEaBDWFZOlm5ecV+6SmZ+bpliTmpaekFrFBDckEqU0JKijLhihhLgJak1uZklqRkZlSVFqiW1xaCJWomw4kE5OKM9MAY2dGLQAA") format("woff");
+      }
+
+      .bi::before,
+      [class^="bi-"]::before,
+      [class*=" bi-"]::before {
+        display: inline-block;
+        font-family: bootstrap-icons !important;
+        font-style: normal;
+        font-weight: normal !important;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        vertical-align: -0.125em;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .bi-pencil::before { content: "\f4c9"; }
+      .bi-x-circle::before { content: "\f623"; }
+      .bi-cash::before { content: "\f1f1"; }
+      .bi-clipboard::before { content: "\f25b"; }
+      .bi-trash::before { content: "\f5de"; }
+    </style>
+    <!-- Aggiungo FontAwesome da CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>CinfoEat</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html> 
