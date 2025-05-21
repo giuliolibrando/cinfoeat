@@ -85,7 +85,4 @@ INSERT INTO configurations (function, state) VALUES
 
 -- Aggiunta di un amministratore di default
 INSERT INTO admins (username, display_name) VALUES
-('030711admin', 'Elio Tosi'),
-('329591', 'Luca Luciani'),
-('418337admin', 'Antonella Mancini'),
-('312518admin', 'Giulio Librando'); 
+('admin1', 'admin admin'); 
